@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker</title>
+    <style>
+       body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-image: url("https://www.eatingwell.com/thmb/m5xUzIOmhWSoXZnY-oZcO9SdArQ=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/article_291139_the-top-10-healthiest-foods-for-kids_-02-4b745e57928c4786a61b47d8ba920058.jpg");
+            background-size: cover;
+            background-position: center;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: #0044cc;
+            color: white;
+            font-size: 28px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 80px auto 20px; /* Adjusted top margin to account for fixed header */
+            padding: 20px;
+            border-radius: 12px;
+        }
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .calculator {
+            flex: 1;
+            min-width: 280px;
+            margin: 15px;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background: white;
+            transition: transform 0.3s;
+        }
+        .calculator:hover {
+            transform: scale(1.02);
+        }
+        h1 {
+            font-size: 24px;
+            color: #0044cc;
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        button {
+            background-color: #0044cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0033aa;
+        }
+        button.clear {
+            background-color: #f44336;
+        }
+        button.clear:hover {
+            background-color: #c62828;
+        }
+        .result, .result-bar {
+            margin-top: 15px;
+            font-size: 18px;
+        }
+        .result-bar {
+            height: 20px;
+            background-color: #0044cc;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+        .result-bar.essential { background-color: #4CAF50; }
+        .result-bar.athletes { background-color: #2196F3; }
+        .result-bar.fitness { background-color: #03A9F4; }
+        .result-bar.average { background-color: #FFC107; }
+        .result-bar.obese { background-color: #F44336; }
+        .categories {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .categories div {
+            flex: 1;
+            text-align: center;
+            padding: 5px;
+            color: #0044cc;
+        }
+        .food-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .list-item {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">Fitness Tracker</div>
+    <div class="container">
+        <div class="main-content">
+            <!-- Calorie Calculator -->
+            <div class="calculator">
+                <h1>Calorie Calculator</h1>
+                <form id="calorieForm">
+                    <label for="age">Age (years):</label>
+                    <input type="number" id="age" required>
+
+                    <label for="weight">Weight (kg):</label>
+                    <input type="number" id="weight" required>
+
+                    <label for="height">Height (cm):</label>
+                    <input type="number" id="height" required>
+
+                    <label for="gender">Gender:</label>
+                    <select id="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+
+                    <label for="activityLevel">Activity Level:</label>
+                    <select id="activityLevel">
+                        <option value="sedentary">Sedentary</option>
+                        <option value="light">Lightly Active</option>
+                        <option value="moderate">Moderately Active</option>
+                        <option value="active">Active</option>
+                        <option value="extra">Very Active</option>
+                    </select>
+
+                    <label for="goal">Goal:</label>
+                    <select id="goal">
+                        <option value="maintain">Maintain Weight</option>
+                        <option value="lose">Lose Weight</option>
+                        <option value="gain">Gain Weight</option>
+                    </select>
+
+                    <div class="button-group">
+                        <button type="button" onclick="calculateCalories()">Calculate Calories</button>
+                        <button type="button" class="clear" onclick="clearCaloriesForm()">Clear All</button>
+                    </div>
+                </form>
+                <div class="result" id="result"></div>
+            </div>
+
+            <!-- Food Tracker -->
+            <div class="calculator">
+                <h1>Food Tracker</h1>
+                <form id="foodForm">
+                    <label for="food-item">Food Item:</label>
+                    <select id="food-item">
+                        <option value="apple">Apple</option>
+                        <option value="banana">Banana</option>
+                        <option value="chicken">Chicken</option>
+                        <option value="rice">Rice</option>
+                        <option value="carrot">Carrot</option>
+                        <option value="egg">Egg</option>
+                        <option value="cheese">Cheese</option>
+                        <option value="pasta">Pasta</option>
+                    </select>
+
+                    <label for="grams">Grams:</label>
+                    <input type="number" id="grams" required>
+
+                    <div class="button-group">
+                        <button type="button" onclick="addFood()">Add Food</button>
+                        <button type="button" class="clear" onclick="clearFoods()">Clear All</button>
+                    </div>
+                </form>
+                <div class="food-list" id="food-list"></div>
+                <div class="result" id="result-calories"></div>
+            </div>
+
+            <!-- Body Fat Calculator -->
+            <div class="calculator">
+                <h1>Body Fat Calculator</h1>
+                <form id="bodyFatForm">
+                    <label for="gender-fat">Gender:</label>
+                    <select id="gender-fat">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+
+                    <label for="age-fat">Age (years):</label>
+                    <input type="number" id="age-fat" required>
+
+                    <label for="weight-fat">Weight (kg):</label>
+                    <input type="number" id="weight-fat" required>
+
+                    <label for="height-fat">Height (cm):</label>
+                    <input type="number" id="height-fat" required>
+
+                    <label for="neck">Neck Circumference (cm):</label>
+                    <input type="number" id="neck" required>
+
+                    <label for="waist">Waist Circumference (cm):</label>
+                    <input type="number" id="waist" required>
+
+                    <label for="hip" id="hipLabel" style="display:none;">Hip Circumference (cm):</label>
+                    <input type="number" id="hip" style="display:none;">
+
+                    <div class="button-group">
+                        <button type="button" onclick="calculateBodyFat()">Calculate Body Fat</button>
+                        <button type="button" class="clear" onclick="clearBodyFatForm()">Clear All</button>
+                    </div>
+                </form>
+                <div class="result" id="bodyFatResult"></div>
+                <div class="result-bar" id="result-bar"></div>
+                <div class="categories">
+                    <div>Essential</div>
+                    <div>Athletes</div>
+                    <div>Fitness</div>
+                    <div>Average</div>
+                    <div>Obese</div>
+                </div>
+            </div>
+
+            <!-- Ideal Weight Calculator -->
+            <div class="calculator">
+                <h1>Ideal Weight Calculator</h1>
+                <form id="idealWeightForm">
+                    <label for="height-ideal">Height (cm):</label>
+                    <input type="number" id="height-ideal" required>
+
+                    <label for="gender-ideal">Gender:</label>
+                    <select id="gender-ideal">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+
+                    <div class="button-group">
+                        <button type="button" onclick="calculateIdealWeight()">Calculate Ideal Weight</button>
+                        <button type="button" class="clear" onclick="clearIdealWeightForm()">Clear All</button>
+                    </div>
+                </form>
+                <div class="result" id="idealWeightResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Calorie Calculator
+        function calculateCalories() {
+            const age = parseInt(document.getElementById('age').value);
+            const weight = parseInt(document.getElementById('weight').value);
+            const height = parseInt(document.getElementById('height').value);
+            const gender = document.getElementById('gender').value;
+            const activityLevel = document.getElementById('activityLevel').value;
+            const goal = document.getElementById('goal').value;
+
+            let bmr;
+
+            if (gender === 'male') {
+                bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+            } else {
+                bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+            }
+
+            const activityMultipliers = {
+                sedentary: 1.2,
+                light: 1.375,
+                moderate: 1.55,
+                active: 1.725,
+                extra: 1.9
+            };
+
+            let calorieNeeds = bmr * activityMultipliers[activityLevel];
+
+            if (goal === 'lose') {
+                calorieNeeds -= 500; // Lose weight
+            } else if (goal === 'gain') {
+                calorieNeeds += 500; // Gain weight
+            }
+
+            document.getElementById('result').innerText = 'Daily Calorie Needs: ' + calorieNeeds.toFixed(2) + ' calories';
+        }
+
+        function clearCaloriesForm() {
+            document.getElementById('calorieForm').reset();
+            document.getElementById('result').innerText = '';
+        }
+
+        // Food Tracker
+        function addFood() {
+            const foodItem = document.getElementById('food-item').value;
+            const grams = parseInt(document.getElementById('grams').value);
+
+            const foodCalories = {
+                apple: 52,
+                banana: 89,
+                chicken: 165,
+                rice: 130,
+                carrot: 41,
+                egg: 155,
+                cheese: 402,
+                pasta: 131
+            };
+
+            const calorieCount = (foodCalories[foodItem] * grams) / 100;
+
+            const foodList = document.getElementById('food-list');
+            const newFood = document.createElement('div');
+            newFood.className = 'list-item';
+            newFood.textContent = foodItem.charAt(0).toUpperCase() + foodItem.slice(1) + ' (' + grams + 'g): ' + calorieCount.toFixed(2) + ' calories';
+            foodList.appendChild(newFood);
+
+            updateTotalCalories();
+        }
+
+        function clearFoods() {
+            document.getElementById('food-list').innerHTML = '';
+            document.getElementById('result-calories').innerText = '';
+        }
+
+        function updateTotalCalories() {
+            const foodItems = document.querySelectorAll('.food-list .list-item');
+            let totalCalories = 0;
+
+            foodItems.forEach(item => {
+                const calories = parseFloat(item.textContent.split(': ')[1].split(' ')[0]);
+                totalCalories += calories;
+            });
+
+            document.getElementById('result-calories').innerText = 'Total Calories: ' + totalCalories.toFixed(2);
+        }
+
+        // Body Fat Calculator
+        function calculateBodyFat() {
+            const gender = document.getElementById('gender-fat').value;
+            const age = parseInt(document.getElementById('age-fat').value);
+            const weight = parseFloat(document.getElementById('weight-fat').value);
+            const height = parseFloat(document.getElementById('height-fat').value);
+            const neck = parseFloat(document.getElementById('neck').value);
+            const waist = parseFloat(document.getElementById('waist').value);
+            const hip = gender === 'female' ? parseFloat(document.getElementById('hip').value) : 0;
+
+            let bodyFatPercentage;
+
+            if (gender === 'male') {
+                bodyFatPercentage = 86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(height) + 36.76;
+            } else {
+                bodyFatPercentage = 163.205 * Math.log10(waist + hip - neck) - 97.684 * Math.log10(height) - 78.387;
+            }
+
+            document.getElementById('bodyFatResult').innerText = 'Body Fat Percentage: ' + bodyFatPercentage.toFixed(2) + '%';
+
+            // Update result bar
+            const resultBar = document.getElementById('result-bar');
+            resultBar.style.width = bodyFatPercentage.toFixed(2) + '%';
+
+            // Categorize body fat percentage
+            resultBar.className = 'result-bar';
+            if (bodyFatPercentage < 6) {
+                resultBar.classList.add('essential');
+            } else if (bodyFatPercentage < 14) {
+                resultBar.classList.add('athletes');
+            } else if (bodyFatPercentage < 24) {
+                resultBar.classList.add('fitness');
+            } else if (bodyFatPercentage < 31) {
+                resultBar.classList.add('average');
+            } else {
+                resultBar.classList.add('obese');
+            }
+        }
+
+        function clearBodyFatForm() {
+            document.getElementById('bodyFatForm').reset();
+            document.getElementById('bodyFatResult').innerText = '';
+            document.getElementById('result-bar').style.width = '0%';
+            document.getElementById('result-bar').className = 'result-bar';
+        }
+
+        // Ideal Weight Calculator
+        function calculateIdealWeight() {
+            const height = parseFloat(document.getElementById('height-ideal').value) / 100;
+            const gender = document.getElementById('gender-ideal').value;
+            let idealWeight;
+
+            if (gender === 'male') {
+                idealWeight = 50 + 0.91 * (height * 100 - 152);
+            } else {
+                idealWeight = 45.5 + 0.91 * (height * 100 - 152);
+            }
+
+            document.getElementById('idealWeightResult').innerText = 'Your ideal weight is: ' + idealWeight.toFixed(2) + ' kg';
+        }
+
+        function clearIdealWeightForm() {
+            document.getElementById('idealWeightForm').reset();
+            document.getElementById('idealWeightResult').innerText = '';
+        }
+    </script>
+</body>
+</html>
